@@ -16,8 +16,8 @@ def post_list(request):
     cached_posts = cache.get('all_posts')
 
     if cached_posts:
-        end_time = time.time()
-        logger.info(f"\nCache HIT - Time taken: {end_time - start_time:.4f} seconds\n")
+        response_time = (time.time() - start_time) * 1000  # in milliseconds
+        logger.info(f"\nCache HIT - Time taken: {response_time:.2f} ms\n")
         return Response(cached_posts)
 
     # If not cached, fetch from database
@@ -25,6 +25,6 @@ def post_list(request):
     serializer = PostSerializer(posts, many=True)
     cache.set('all_posts', serializer.data, timeout=60)  # Cache for 60 seconds
 
-    end_time = time.time()
-    logger.info(f"\nCache MISS - Query time: {end_time - start_time:.4f} seconds\n")
+    response_time = (time.time() - start_time) * 1000  # in milliseconds
+    logger.info(f"\nCache MISS - Query time: {response_time:.2f} ms\n")
     return Response(serializer.data)
